@@ -1,569 +1,598 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- PWA Manifest & Service Worker Script -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f46e5">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker Registered'));
-        }
-    </script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Gayan's Medicare - Cloud ERP</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <title>Dr. Gayan's Medicare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+</head>
+<body class="bg-gray-50 font-sans pb-12">
 
-        // Your Exact Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqelLyZr-sT1WXpn3ltxANF6FgEjvg6ec",
-            authDomain: "dr-gayan-s-medicare.firebaseapp.com",
-            projectId: "dr-gayan-s-medicare",
-            storageBucket: "dr-gayan-s-medicare.firebasestorage.app",
-            messagingSenderId: "105233386624",
-            appId: "1:105233386624:web:d2088b6f233bbf7b8e2a65"
-        };
+    <nav class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-clinic-medical text-2xl"></i>
+                <span class="font-bold text-lg tracking-wide">Medicare Clinic System</span>
+            </div>
+            <div class="flex space-x-1 bg-indigo-700 p-1 rounded-lg text-xs md:text-sm">
+                <button id="navReception" class="px-3 py-1.5 rounded-md font-medium bg-white text-indigo-600 shadow-sm">Reception</button>
+                <button id="navInventory" class="px-3 py-1.5 rounded-md font-medium text-indigo-200 hover:text-white">Inventory</button>
+                <button id="navDoctor" class="px-3 py-1.5 rounded-md font-medium text-indigo-200 hover:text-white">Doctor</button>
+                <button id="navPharmacist" class="px-3 py-1.5 rounded-md font-medium text-indigo-200 hover:text-white">Pharmacy/Billing</button>
+            </div>
+        </div>
+    </nav>
 
-        // Initialize Firebase & Firestore
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    <main class="max-w-7xl mx-auto px-4 mt-6">
 
-        // Export to Window object so our standard JS can access them globally
-        window.db = db; window.collection = collection; window.addDoc = addDoc;
-        window.getDocs = getDocs; window.doc = doc; window.updateDoc = updateDoc;
-        window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.orderBy = orderBy;
-    </script>
+        <section id="viewReception" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-user-plus text-indigo-500 mr-2"></i>Register Patient</h2>
+                <form id="patientForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="pName" required placeholder="John Doe" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                            <input type="number" id="pAge" required placeholder="35" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                            <select id="pGender" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+                            <input type="number" id="pWeight" step="0.1" placeholder="70" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">BP (mmHg)</label>
+                            <input type="text" id="pBp" placeholder="120/80" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number</label>
+                        <input type="tel" id="pPhone" placeholder="0764081966" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm flex items-center justify-center"><i class="fas fa-paper-plane mr-2"></i>Send to Doctor's Queue</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-users text-indigo-500 mr-2"></i>Doctor's Waiting Queue</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b text-gray-400 text-xs font-semibold uppercase">
+                                <th class="p-3">Token</th>
+                                <th class="p-3">Patient Details</th>
+                                <th class="p-3">Vitals</th>
+                                <th class="p-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receptionQueueTbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="viewInventory" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-pills text-emerald-500 mr-2"></i>Add / Update Medicine</h2>
+                <form id="inventoryForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Medicine Name</label>
+                        <input type="text" id="invName" required placeholder="Paracetamol 500mg" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity (Tabs/Bottles)</label>
+                        <input type="number" id="invQty" required placeholder="1000" class="w-full border border-gray-300 rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-xl transition shadow-sm flex items-center justify-center"><i class="fas fa-plus-circle mr-2"></i>Save to Stock</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-boxes text-emerald-500 mr-2"></i>Current Stock Control</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b text-gray-400 text-xs font-semibold uppercase">
+                                <th class="p-3">Medicine Code/ID</th>
+                                <th class="p-3">Medicine Name</th>
+                                <th class="p-3">Available Stock</th>
+                                <th class="p-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="viewDoctor" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-user-clock text-indigo-500 mr-2"></i>Waiting Patients</h2>
+                <div id="doctorQueueDiv" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col justify-between">
+                <div>
+                    <div class="border-b pb-3 mb-4 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800" id="currentPatientName">Select a Patient</h2>
+                            <p class="text-sm text-gray-500" id="currentPatientVitals">Age: -- | Gender: -- | Weight: -- | BP: --</p>
+                        </div>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full" id="currentPatientToken">Token --</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
+                        <div class="md:col-span-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Drug Name</label>
+                            <select id="medSelect" class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none"></select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
+                            <select id="medDosage" class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none">
+                                <option value="1+0+1">1 + 0 + 1</option>
+                                <option value="1+1+1">1 + 1 + 1</option>
+                                <option value="1+0+0">1 + 0 + 0</option>
+                                <option value="0+0+1">0 + 0 + 1</option>
+                                <option value="1+1+1+1">1 + 1 + 1 + 1</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">No. of Days</label>
+                            <input type="number" id="medDays" min="1" placeholder="5" class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Instructions</label>
+                            <input type="text" id="medIns" placeholder="After meal" class="w-full border border-gray-300 rounded-lg p-2 text-sm outline-none">
+                        </div>
+                        <div class="md:col-span-12 text-right">
+                            <button id="btnAddMed" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-indigo-700 shadow-sm"><i class="fas fa-plus mr-1"></i>Add</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-600 text-xs font-semibold uppercase">
+                                    <th class="p-2">Drug</th>
+                                    <th class="p-2">Dosage</th>
+                                    <th class="p-2">Duration</th>
+                                    <th class="p-2">Instructions</th>
+                                    <th class="p-2 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prescriptionTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 mt-6 flex justify-end space-x-3">
+                    <button id="btnSavePrescription" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium shadow-sm flex items-center"><i class="fas fa-cloud-upload-alt mr-2"></i>Finish & Send to Pharmacy</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="viewPharmacist" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center"><i class="fas fa-prescription text-amber-500 mr-2"></i>Ready to Dispense</h2>
+                <div id="pharmacyQueueDiv" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col justify-between">
+                <div id="invoicePrintArea">
+                    <div class="text-center mb-4 border-b border-gray-200 pb-4">
+                        <h2 class="text-2xl font-bold text-gray-800 tracking-wide">DR. GAYAN'S MEDICARE</h2>
+                        <p class="text-xs text-gray-500">7 cannel, Hindogama | Tel: 0764081966</p>
+                    </div>
+                    <div class="flex justify-between items-center mb-4 text-sm bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div>
+                            <p class="font-bold text-gray-800" id="phPatientName">Patient: Select From Left</p>
+                            <p class="text-xs text-gray-500" id="phPatientVitals">Age: -- | Gender: --</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs" id="phPatientToken">Token --</span>
+                            <p class="text-[10px] text-gray-400 mt-1" id="phInvoiceDate"></p>
+                        </div>
+                    </div>
+
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 font-semibold uppercase text-xs">
+                                <th class="p-2.5">Drug Name</th>
+                                <th class="p-2.5">Dosage</th>
+                                <th class="p-2.5">Duration</th>
+                                <th class="p-2.5 text-right">Total Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phInvoiceTbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+
+                <div class="border-t pt-4 mt-6 flex justify-end space-x-3">
+                    <button id="btnPrintInvoice" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium shadow-sm flex items-center"><i class="fas fa-print mr-2"></i>Print Official Invoice</button>
+                    <button id="btnCompleteDispense" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium shadow-sm flex items-center"><i class="fas fa-check-double mr-2"></i>Done & Archive</button>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <style>
         @media print {
             body * { visibility: hidden; }
-            #print-area-target, #print-area-target * { visibility: visible; }
-            #print-area-target { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
-            .print-only-summary #rcpt-invoice-section { display: none !important; }
-            .print-only-invoice #rcpt-clinical-section { display: none !important; }
-            .no-print { display: none !important; }
+            #invoicePrintArea, #invoicePrintArea * { visibility: visible; }
+            #invoicePrintArea { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
-</head>
-<body class="bg-gray-50 font-sans pb-12 text-gray-800">
 
-    <header class="bg-indigo-700 text-white shadow-md p-4 mb-6 no-print">
-        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <h1 class="text-xl font-bold tracking-wide">🏥 Dr. Gayan's Medicare v2.5 (Cloud Connected)</h1>
-            <div class="flex items-center gap-4">
-                <span class="text-xs bg-indigo-800 px-3 py-1 rounded-full font-mono" id="live-clock"></span>
-                <span class="text-xs bg-green-600 px-3 py-1 rounded-full font-bold">☁️ Cloud Sync Live</span>
-            </div>
+    <div id="whatsappPdfTemplate" class="p-8 bg-white hidden" style="width: 600px; font-family: sans-serif;">
+        <div style="text-align: center; border-bottom: 2px solid #4f46e5; padding-bottom: 12px; margin-bottom: 15px;">
+            <h2 style="margin: 0; color: #4f46e5;">DR. GAYAN'S MEDICARE</h2>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #666;">7 cannel, Hindogama | Tel: 0764081966</p>
+            <h4 style="margin: 10px 0 0 0; color: #333; letter-spacing: 1px;">PATIENT VISIT SUMMARY</h4>
         </div>
-    </header>
-
-    <div class="container mx-auto px-4 max-w-7xl no-print">
-        
-        <div class="flex flex-wrap border-b border-gray-200 mb-6 gap-2 bg-white p-2 rounded-lg shadow-xs">
-            <button onclick="switchRole('reception-role')" id="btn-role-reception" class="py-2 px-4 font-bold text-sm rounded bg-indigo-600 text-white cursor-pointer transition">💁‍♀️ RECEPTION VIEW</button>
-            <button onclick="switchRole('doctor-role')" id="btn-role-doctor" class="py-2 px-4 font-bold text-sm rounded text-gray-600 hover:bg-gray-100 cursor-pointer transition">🧑‍⚕️ DOCTOR VIEW</button>
-            <button onclick="switchRole('stock-role')" id="btn-role-stock" class="py-2 px-4 font-bold text-sm rounded text-gray-600 hover:bg-gray-100 cursor-pointer transition">💊 DRUG STOCK</button>
-            <button onclick="switchRole('finance-role')" id="btn-role-finance" class="py-2 px-4 font-bold text-sm rounded text-gray-600 hover:bg-gray-100 cursor-pointer transition">📊 FINANCIAL INSIGHTS</button>
-        </div>
-
-        <div id="reception-role" class="role-content grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 h-fit">
-                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">New Patient Registration</h2>
-                <form id="reception-form" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Patient Name</label>
-                        <input type="text" id="r-name" required placeholder="Sunil Shantha" class="w-full p-2 border rounded text-sm outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Age</label>
-                            <input type="number" id="r-age" required class="w-full p-2 border rounded text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Gender</label>
-                            <select id="r-gender" class="w-full p-2 border rounded text-sm bg-white">
-                                <option>Male</option><option>Female</option><option>Child</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Contact</label>
-                            <input type="text" id="r-contact" placeholder="07XXXXXXXX" class="w-full p-2 border rounded text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Weight (kg)</label>
-                            <input type="number" step="0.1" id="r-weight" class="w-full p-2 border rounded text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-red-600 mb-1">Allergy History / සටහන්</label>
-                        <textarea id="r-allergies" rows="2" class="w-full p-2 border border-red-200 bg-red-50/30 rounded text-sm"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2 rounded text-sm cursor-pointer">Add to Cloud Waiting Queue</button>
-                </form>
-            </div>
-            <div class="lg:col-span-2 bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 flex justify-between items-center">
-                    <span>⏳ Active Waiting Queue (Live Cloud)</span>
-                    <span id="queue-count-badge" class="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0 Waiting</span>
-                </h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-gray-50 border-b text-xs text-gray-600 font-bold">
-                                <th class="p-3">Token No</th><th class="p-3">Patient Name</th><th class="p-3">Age/Gender</th><th class="p-3">Allergies</th><th class="p-3 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reception-queue-body" class="divide-y text-gray-600"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-<div id="doctor-role" class="role-content grid grid-cols-1 lg:grid-cols-4 gap-6 hidden">
-            <div class="lg:col-span-1 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                <h2 class="text-sm font-bold text-gray-700 mb-3 border-b pb-1.5 uppercase">Waiting List</h2>
-                <div class="space-y-2 max-h-[600px] overflow-y-auto" id="doctor-queue-container"></div>
-            </div>
-            <div class="lg:col-span-3 space-y-6">
-                <div class="bg-white p-5 rounded-lg shadow-sm border-2 border-indigo-500">
-                    <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                        <h2 class="text-lg font-bold text-indigo-900">🩺 Consultation Dashboard</h2>
-                        <span id="active-token-indicator" class="bg-gray-500 text-white font-mono font-bold px-3 py-1 rounded">No Patient</span>
-                    </div>
-                    <div id="active-patient-vitals" class="bg-gray-50 p-4 rounded-md mb-4 text-xs grid grid-cols-1 sm:grid-cols-2 gap-3 border hidden">
-                        <div class="space-y-1">
-                            <div>Name: <strong id="doc-p-name" class="text-sm text-gray-800"></strong></div>
-                            <div>Age/Sex: <strong id="doc-p-agegender"></strong></div>
-                            <div>Weight/Phone: <strong id="doc-p-weightcontact"></strong></div>
-                        </div>
-                        <div class="bg-red-50 p-2 rounded border border-red-200">
-                            <span class="text-red-600 font-bold block">⚠️ Allergies / Notes:</span>
-                            <p id="doc-p-allergies" class="text-red-700 font-medium mt-0.5"></p>
-                        </div>
-                    </div>
-                    <form id="doctor-consult-form" class="space-y-4" onsubmit="saveConsultation(event)">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold mb-1">History / Complaints</label><textarea id="d-history" rows="2" class="w-full p-2 border rounded text-sm"></textarea></div>
-                            <div><label class="block text-xs font-semibold mb-1">Examination Findings</label><textarea id="d-examination" rows="2" class="w-full p-2 border rounded text-sm"></textarea></div>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-semibold mb-1">Investigations</label><textarea id="d-investigations" rows="2" class="w-full p-2 border rounded text-sm"></textarea></div>
-                            <div><label class="block text-xs font-semibold mb-1">Diagnosis</label><textarea id="d-diagnosis" rows="2" class="w-full p-2 border rounded text-sm"></textarea></div>
-                        </div>
-                        <div class="border pt-3 bg-indigo-50/30 p-3 rounded-lg">
-                            <label class="block text-xs font-bold text-indigo-900 mb-2">Prescribe Medication</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-2">
-                                <select id="doc-drug-select" class="p-2 border rounded text-sm bg-white sm:col-span-1"></select>
-                                <input type="text" id="doc-drug-dose" placeholder="Dose (e.g., 1 tab)" class="p-2 border rounded text-sm">
-                                <select id="doc-drug-freq" class="p-2 border rounded text-sm bg-white">
-                                    <option>BD (දිනකට 2ක්)</option><option>TDS (දිනකට 3ක්)</option><option>Mane (උදේට)</option><option>Nocte (රෑට)</option><option>PRN (අවශ්‍ය විට)</option>
-                                </select>
-                                <div class="flex gap-1">
-                                    <input type="number" id="doc-drug-qty" placeholder="Qty" class="w-1/2 p-2 border rounded text-sm">
-                                    <button type="button" onclick="addDrugToPrescription()" class="w-1/2 bg-green-600 text-white font-bold text-xs rounded">+ Add</button>
-                                </div>
-                            </div>
-                            <div class="bg-white rounded border overflow-hidden mt-2">
-                                <table class="w-full text-xs text-left">
-                                    <thead class="bg-gray-100 border-b"><tr><th class="p-2">Drug Name</th><th class="p-2">Dose/Freq</th><th class="p-2">Qty</th><th class="p-2 text-center">Action</th></tr></thead>
-                                    <tbody id="doc-selected-drugs" class="divide-y"><tr><td colspan="4" class="text-center p-2 text-gray-400">No drugs prescribed.</td></tr></tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg border grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <h3 class="text-xs font-bold text-gray-700 mb-2 uppercase">Service Fees</h3>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div><label class="block text-[10px]">Doctor Fee</label><input type="number" id="bill-doc-fee" value="500" oninput="calculateLiveBillTotals()" class="w-full p-2 border rounded text-sm"></div>
-                                    <div><label class="block text-[10px]">Hospital Fee</label><input type="number" id="bill-hosp-fee" value="200" oninput="calculateLiveBillTotals()" class="w-full p-2 border rounded text-sm"></div>
-                                </div>
-                            </div>
-                            <div class="bg-indigo-900 text-white p-3 rounded flex flex-col justify-between items-end">
-                                <span class="text-xs text-indigo-200">Grand Bill Overview</span>
-                                <div class="text-right"><div class="text-xl font-bold text-amber-400">Rs. <span id="bill-rounded-lbl">0.00</span></div><span class="text-[9px] text-indigo-200">Rounded to nearest Rs. 50</span></div>
-                            </div>
-                        </div>
-                        <button type="submit" id="btn-save-consult" disabled class="w-full bg-indigo-600 text-white font-bold py-3 rounded text-sm opacity-50 cursor-not-allowed">Finish & Save to Cloud</button>
-                    </form>
-                </div>
-                <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4 pb-2 border-b gap-2">
-                        <h2 class="text-md font-bold text-gray-800">📋 Historical Medical Records (Cloud Archive)</h2>
-                        <input type="text" id="search-archive" placeholder="Search records..." class="p-2 border rounded text-sm w-full sm:w-64">
-                    </div>
-                    <div class="space-y-3 max-h-[450px] overflow-y-auto pr-2" id="archive-history-container"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="stock-role" class="role-content grid grid-cols-1 lg:grid-cols-4 gap-6 hidden">
-            <div class="lg:col-span-1 bg-white p-5 rounded-lg shadow-sm border border-gray-200 h-fit">
-                <h2 class="text-sm font-bold text-gray-800 mb-4 border-b pb-2" id="stock-form-title">Add New Stock</h2>
-                <form id="drug-form" class="space-y-4">
-                    <input type="hidden" id="stock-id-ref">
-                    <div><label class="block text-xs font-medium mb-1">Drug Name</label><input type="text" id="st-name" required class="w-full p-2 border rounded text-sm"></div>
-                    <div><label class="block text-xs font-medium mb-1">Batch Number</label><input type="text" id="st-batch" required class="w-full p-2 border rounded text-sm"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="block text-xs font-medium mb-1">Quantity</label><input type="number" id="st-qty" required class="w-full p-2 border rounded text-sm"></div>
-                        <div><label class="block text-xs font-medium text-indigo-700 font-bold mb-1">Unit Price</label><input type="number" step="0.01" id="st-unitprice" required class="w-full p-2 border border-indigo-200 rounded text-sm"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><label class="block text-xs font-medium mb-1">Min Level</label><input type="number" id="st-reorder" required class="w-full p-2 border rounded text-sm"></div>
-                        <div><label class="block text-xs font-medium mb-1">Expiry Date</label><input type="date" id="st-expiry" required class="w-full p-2 border rounded text-sm"></div>
-                    </div>
-                    <button type="submit" id="st-submit-btn" class="w-full bg-indigo-600 text-white py-2 rounded text-sm cursor-pointer">Save Drug to Cloud</button>
-                    <button type="button" id="st-cancel-btn" onclick="resetStockForm()" class="w-full bg-gray-300 text-gray-700 py-2 rounded text-sm hidden">Cancel</button>
-                </form>
-            </div>
-            <div class="lg:col-span-3 bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                    <h2 class="text-sm font-bold text-gray-800">Available Stock Inventory</h2>
-                    <input type="text" id="search-stock" placeholder="Search..." class="p-2 border rounded text-sm w-64">
-                </div>
-                <div class="overflow-x-auto text-sm">
-                    <table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-gray-100 border-b text-xs text-gray-700 font-bold"><th class="p-3">Drug Name</th><th class="p-3">Batch</th><th class="p-3">Unit Price</th><th class="p-3">Qty</th><th class="p-3">Expiry</th><th class="p-3 text-right">Actions</th></tr></thead>
-                        <tbody id="stock-table-body" class="divide-y text-gray-600"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="finance-role" class="role-content space-y-6 hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-lg border"><span class="text-xs font-bold text-gray-400">Today's Income</span><div class="text-2xl font-black text-indigo-700 mt-1">Rs. <span id="fin-today-total">0.00</span></div></div>
-                <div class="bg-white p-5 rounded-lg border"><span class="text-xs font-bold text-gray-400">Month Income</span><div class="text-2xl font-black text-green-600 mt-1">Rs. <span id="fin-month-total">0.00</span></div></div>
-                <div class="bg-white p-5 rounded-lg border"><span class="text-xs font-bold text-gray-400">Total Visits</span><div class="text-2xl font-black text-amber-500 mt-1"><span id="fin-visit-count">0</span> Patients</div></div>
-            </div>
-            <div class="bg-white p-5 rounded-lg border">
-                <h3 class="text-md font-bold text-gray-800 mb-4 border-b pb-2">📊 Revenue Log</h3>
-                <div class="overflow-x-auto text-sm">
-                    <table class="w-full text-left border-collapse">
-                        <thead><tr class="bg-gray-50 border-b text-xs text-gray-600 uppercase font-bold"><th class="p-3">Date/Time</th><th class="p-3">Patient</th><th class="p-3">Doc Fee</th><th class="p-3">Hosp Fee</th><th class="p-3">Pharmacy</th><th class="p-3 text-right">Total</th></tr></thead>
-                        <tbody id="finance-table-body" class="divide-y text-gray-600"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-<div id="print-modal-backdrop" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden no-print">
-        <div class="bg-white rounded-xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto">
-            <div id="print-area-target" class="bg-white p-4 text-gray-900 border rounded">
-                <div class="text-center border-b-2 border-gray-800 pb-3 mb-4">
-                    <h2 class="text-xl font-bold uppercase">DR. GAYAN'S MEDICARE</h2>
-                    <p class="text-xs text-gray-600">Medical Consultation Summary</p>
-                    <p class="text-[10px] font-mono text-gray-500" id="rcpt-date-time"></p>
-                </div>
-                <div class="grid grid-cols-2 text-xs gap-1 bg-gray-50 p-2 rounded mb-4 font-mono border">
-                    <div>Token: <span id="rcpt-token" class="font-bold text-indigo-700"></span></div>
-                    <div>Name: <span id="rcpt-name"></span></div>
-                    <div>Age/Sex: <span id="rcpt-agegender"></span></div>
-                    <div>Weight/Contact: <span id="rcpt-weightcontact"></span></div>
-                    <div class="col-span-2 text-red-600">Allergies: <span id="rcpt-allergies" class="font-bold"></span></div>
-                </div>
-                <div id="rcpt-clinical-section" class="space-y-3 border-b pb-4 mb-4">
-                    <h3 class="text-xs font-bold uppercase bg-gray-800 text-white px-2 py-0.5">Clinical Findings</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                        <div><span class="text-[10px] text-gray-500 font-bold block">History & Complaints:</span><p id="rcpt-history" class="bg-gray-50 p-1 rounded border italic"></p></div>
-                        <div><span class="text-[10px] text-gray-500 font-bold block">Examination Findings:</span><p id="rcpt-examination" class="bg-gray-50 p-1 rounded border italic"></p></div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                        <div><span class="text-[10px] text-gray-500 font-bold block">Investigations:</span><p id="rcpt-investigations" class="bg-gray-50 p-1 rounded border"></p></div>
-                        <div><span class="text-[10px] text-gray-500 font-bold block">Final Diagnosis:</span><p id="rcpt-dx" class="bg-indigo-50 p-1 rounded border font-bold"></p></div>
-                    </div>
-                    <div class="pt-2">
-                        <span class="text-[10px] text-gray-500 font-bold block mb-1">Rx - Prescription Medications:</span>
-                        <table class="w-full text-xs text-left">
-                            <thead><tr class="border-b text-gray-600 text-[10px] font-bold"><th>Medication Name</th><th>Dose</th><th>Frequency</th><th class="text-right">Qty</th></tr></thead>
-                            <tbody id="rcpt-meds-body" class="divide-y font-mono"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div id="rcpt-invoice-section">
-                    <h3 class="text-xs font-bold uppercase bg-gray-100 px-2 py-0.5 mb-2 border">Invoice Statement</h3>
-                    <div class="grid grid-cols-2 text-xs font-mono">
-                        <div>Doctor Fee:</div><div class="text-right">Rs. <span id="rcpt-doc-fee"></span></div>
-                        <div>Hospital Fee:</div><div class="text-right">Rs. <span id="rcpt-hosp-fee"></span></div>
-                        <div class="font-bold">Pharmacy Fee:</div><div class="text-right font-bold">Rs. <span id="rcpt-drugs-fee"></span></div>
-                        <div class="col-span-2 border-t border-dashed my-1"></div>
-                        <div class="text-gray-400 text-[10px] self-center">Net Subtotal: Rs. <span id="rcpt-net-fee"></span></div>
-                        <div class="text-right">
-                            <span class="text-[10px] font-bold text-gray-500 block">Grand Total Payable</span>
-                            <span class="text-lg font-bold border-b-4 border-double bg-gray-50 px-2">Rs. <span id="rcpt-final-bill"></span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 no-print">
-                <button onclick="triggerSpecificPrint('summary')" class="bg-indigo-600 text-white font-bold py-2 rounded text-xs cursor-pointer">🖨️ Print Visit Summary Only</button>
-                <button onclick="triggerSpecificPrint('invoice')" class="bg-emerald-600 text-white font-bold py-2 rounded text-xs cursor-pointer">💵 Print Bill Invoice Only</button>
-                <button onclick="sendPrescriptionViaWhatsApp()" class="bg-green-600 text-white font-bold py-2 rounded text-xs cursor-pointer sm:col-span-2 flex items-center justify-center gap-1">💬 Share to Patient's WhatsApp</button>
-                <button onclick="closePrintModal()" class="w-full bg-gray-200 text-gray-700 py-2 rounded text-xs cursor-pointer sm:col-span-2 mt-2">Close</button>
-            </div>
+        <table style="width: 100%; font-size: 13px; margin-bottom: 20px; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 4px 0;"><strong>Patient Name:</strong> <span id="pdfName"></span></td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Token Number:</strong> <span id="pdfToken"></span></td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>Age / Gender:</strong> <span id="pdfAgeGen"></span></td>
+                <td style="padding: 4px 0; text-align: right;"><strong>Date:</strong> <span id="pdfDate"></span></td>
+            </tr>
+            <tr>
+                <td style="padding: 4px 0;"><strong>Vitals:</strong> <span id="pdfVitals"></span></td>
+                <td></td>
+            </tr>
+        </table>
+        <h4 style="border-bottom: 1px solid #ddd; padding-bottom: 4px; color: #4f46e5;">PRESCRIPTION (Rx)</h4>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-left: left;">
+            <thead>
+                <tr style="background-color: #f3f4f6;">
+                    <th style="padding: 8px;">Drug Name</th>
+                    <th style="padding: 8px;">Dosage</th>
+                    <th style="padding: 8px;">Duration</th>
+                    <th style="padding: 8px;">Instructions</th>
+                </tr>
+            </thead>
+            <tbody id="pdfItemsTbody"></tbody>
+        </table>
+        <div style="margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; text-align: center; font-size: 11px; color: #888; font-style: italic;">
+            Get Well Soon! This is a digital copy of your prescription summary.
         </div>
     </div>
 
-    <script>
-        let inventory = []; let waitingQueue = []; let clinicalArchive = [];
-        let activePatient = null; let tempPrescription = []; let editStockId = null; let activeModalRecord = null;
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleString(); }, 1000);
+        // ⚠️⚠️ PASTE YOUR EXACT FIREBASE CREDENTIALS HERE ⚠️⚠️
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "dr-gayan-s-medicare",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        // Core Cloud Listeners
-        setTimeout(() => {
-            if(!window.db) { alert("Firebase initialization error! Check internet connection."); return; }
-            
-            // 1. Live Queue Listener
-            window.onSnapshot(window.query(window.collection(window.db, "queue"), window.orderBy("token", "asc")), (snapshot) => {
-                waitingQueue = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAll();
-            });
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-            // 2. Live Inventory Listener
-            window.onSnapshot(window.collection(window.db, "inventory"), (snapshot) => {
-                inventory = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAll();
-            });
+        // State variables
+        let queueData = [];
+        let inventoryData = [];
+        let pharmacyData = [];
+        let selectedDoctorPatient = null;
+        let selectedPharmacyPatient = null;
+        let currentPrescription = [];
 
-            // 3. Live Archive Listener
-            window.onSnapshot(window.query(window.collection(window.db, "archive"), window.orderBy("timestamp", "desc")), (snapshot) => {
-                clinicalArchive = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderAll();
-            });
-        }, 1500);
+        // Advanced View Switching Navigation (Role restrictions)
+        const views = {
+            Reception: document.getElementById('viewReception'),
+            Inventory: document.getElementById('viewInventory'),
+            Doctor: document.getElementById('viewDoctor'),
+            Pharmacist: document.getElementById('viewPharmacist')
+        };
+        const tabs = {
+            Reception: document.getElementById('navReception'),
+            Inventory: document.getElementById('navInventory'),
+            Doctor: document.getElementById('navDoctor'),
+            Pharmacist: document.getElementById('navPharmacist')
+        };
 
-        function switchRole(roleId) {
-            document.querySelectorAll('.role-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(roleId).classList.remove('hidden'); renderAll();
-        }
-
-        // Add Patient to Cloud Queue
-        document.getElementById('reception-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const currentToken = waitingQueue.length > 0 ? Math.max(...waitingQueue.map(p => p.token || 0)) + 1 : 1;
-            const newPatient = {
-                token: currentToken,
-                name: document.getElementById('r-name').value.trim(),
-                age: document.getElementById('r-age').value, gender: document.getElementById('r-gender').value,
-                contact: document.getElementById('r-contact').value || 'N/A',
-                weight: document.getElementById('r-weight').value ? document.getElementById('r-weight').value + ' kg' : 'N/A',
-                allergies: document.getElementById('r-allergies').value.trim() || 'None'
-            };
-            try {
-                await window.addDoc(window.collection(window.db, "queue"), newPatient);
-                document.getElementById('reception-form').reset();
-            } catch (err) { alert("Cloud Save Error: " + err.message); }
-        });
-
-        window.removeFromQueue = async function(id) {
-            if(confirm("Remove patient from queue?")) {
-                try {
-                    await window.deleteDoc(window.doc(window.db, "queue", id));
-                    if(activePatient && activePatient.id === id) resetActiveConsultation();
-                } catch(err) { alert(err.message); }
-            }
-        }
-
-        window.selectPatientForConsult = function(id) {
-            const p = waitingQueue.find(p => p.id === id); if(!p) return;
-            activePatient = p; tempPrescription = [];
-            document.getElementById('active-token-indicator').innerText = `SERVING: TOKEN ${p.token}`;
-            document.getElementById('doc-p-name').innerText = p.name;
-            document.getElementById('doc-p-agegender').innerText = `${p.age} Yrs / ${p.gender}`;
-            document.getElementById('doc-p-weightcontact').innerText = `${p.weight} | Phone: ${p.contact}`;
-            document.getElementById('doc-p-allergies').innerText = p.allergies;
-            document.getElementById('active-patient-vitals').classList.remove('hidden');
-            document.getElementById('btn-save-consult').disabled = false;
-            document.getElementById('btn-save-consult').className = "w-full bg-indigo-600 text-white font-bold py-3 rounded text-sm cursor-pointer shadow";
-            calculateLiveBillTotals(); renderTempPrescriptionList();
-        }
-
-        function addDrugToPrescription() {
-            if(!activePatient) return;
-            const select = document.getElementById('doc-drug-select');
-            const drugId = select.value; const qtyNeeded = parseInt(document.getElementById('doc-drug-qty').value);
-            const dose = document.getElementById('doc-drug-dose').value.trim();
-            const freq = document.getElementById('doc-drug-freq').value;
-            if(!drugId || !qtyNeeded || !dose) return;
-            const stockItem = inventory.find(i => i.id === drugId);
-            if(qtyNeeded > stockItem.qty) { alert("Low stock!"); return; }
-
-            tempPrescription.push({
-                drugId, name: stockItem.name, dose, frequency: freq, qty: qtyNeeded,
-                unitPrice: parseFloat(stockItem.unitPrice), totalCost: qtyNeeded * parseFloat(stockItem.unitPrice)
-            });
-            document.getElementById('doc-drug-dose').value = ''; document.getElementById('doc-drug-qty').value = '';
-            renderTempPrescriptionList(); calculateLiveBillTotals();
-        }
-
-        function renderTempPrescriptionList() {
-            const list = document.getElementById('doc-selected-drugs');
-            if(tempPrescription.length === 0) { list.innerHTML = '<tr><td colspan="4" class="text-center p-2 text-gray-400">No drugs prescribed.</td></tr>'; return; }
-            list.innerHTML = tempPrescription.map((d, i) => `<tr><td class="p-2 font-medium">${d.name}</td><td>${d.dose} | ${d.frequency}</td><td class="font-bold">${d.qty}</td><td class="text-center"><button type="button" onclick="removeTempDrug(${i})" class="text-red-500 font-bold">✕</button></td></tr>`).join('');
-        }
-
-        window.removeTempDrug = function(i) { tempPrescription.splice(i, 1); renderTempPrescriptionList(); calculateLiveBillTotals(); }
-
-        function calculateLiveBillTotals() {
-            const docFee = parseFloat(document.getElementById('bill-doc-fee').value) || 0;
-            const hospFee = parseFloat(document.getElementById('bill-hosp-fee').value) || 0;
-            const drugsFee = tempPrescription.reduce((sum, item) => sum + item.totalCost, 0);
-            const netSubtotal = docFee + hospFee + drugsFee;
-            const roundedGrandTotal = Math.ceil(netSubtotal / 50) * 50;
-            document.getElementById('bill-rounded-lbl').innerText = roundedGrandTotal.toFixed(2);
-            return { docFee, hospFee, drugsFee, netSubtotal, roundedGrandTotal };
-        }
-
-        window.saveConsultation = async function(e) {
-            e.preventDefault(); if(!activePatient) return;
-            const billing = calculateLiveBillTotals();
-
-            // Cloud Inventory Reduction Logic
-            for (let p of tempPrescription) {
-                const st = inventory.find(i => i.id === p.drugId);
-                if(st) {
-                    const newQty = st.qty - p.qty;
-                    await window.updateDoc(window.doc(window.db, "inventory", p.drugId), { qty: newQty });
-                }
-            }
-
-            const record = {
-                date: new Date().toLocaleDateString('en-US'), time: new Date().toLocaleTimeString(), timestamp: Date.now(),
-                token: activePatient.token, name: activePatient.name, age: activePatient.age, gender: activePatient.gender,
-                weight: activePatient.weight, contact: activePatient.contact, allergies: activePatient.allergies,
-                history: document.getElementById('d-history').value || 'N/A', examination: document.getElementById('d-examination').value || 'N/A',
-                investigations: document.getElementById('d-investigations').value || 'N/A', diagnosis: document.getElementById('d-diagnosis').value || 'Unspecified',
-                medications: [...tempPrescription], billing
-            };
-
-            try {
-                await window.addDoc(window.collection(window.db, "archive"), record);
-                await window.deleteDoc(window.doc(window.db, "queue", activePatient.id));
-                openPrintModal(record); resetActiveConsultation(); document.getElementById('doctor-consult-form').reset();
-            } catch(err) { alert("Error checking out: " + err.message); }
-        }
-
-        function resetActiveConsultation() {
-            activePatient = null; tempPrescription = [];
-            document.getElementById('active-token-indicator').innerText = "No Patient";
-            document.getElementById('active-patient-vitals').classList.add('hidden');
-            document.getElementById('btn-save-consult').disabled = true;
-            document.getElementById('btn-save-consult').className = "w-full bg-indigo-600 text-white font-bold py-2.5 rounded text-sm opacity-50 cursor-not-allowed";
-            calculateLiveBillTotals(); renderTempPrescriptionList();
-        }
-
-        document.getElementById('drug-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const dData = {
-                name: document.getElementById('st-name').value.trim(), batch: document.getElementById('st-batch').value.trim(),
-                qty: parseInt(document.getElementById('st-qty').value), unitPrice: parseFloat(document.getElementById('st-unitprice').value),
-                reorder: parseInt(document.getElementById('st-reorder').value), expiry: document.getElementById('st-expiry').value
-            };
-            try {
-                if(editStockId) { await window.updateDoc(window.doc(window.db, "inventory", editStockId), dData); editStockId = null; } 
-                else { await window.addDoc(window.collection(window.db, "inventory"), dData); }
-                document.getElementById('drug-form').reset(); resetStockForm();
-            } catch(err) { alert(err.message); }
-        });
-
-        window.editStock = function(id) {
-            const item = inventory.find(i => i.id === id);
-            if(item) {
-                editStockId = id; document.getElementById('st-name').value = item.name; document.getElementById('st-batch').value = item.batch;
-                document.getElementById('st-qty').value = item.qty; document.getElementById('st-unitprice').value = item.unitPrice;
-                document.getElementById('st-reorder').value = item.reorder; document.getElementById('st-expiry').value = item.expiry;
-                document.getElementById('st-submit-btn').innerText = "Update Stock Line"; document.getElementById('st-cancel-btn').classList.remove('hidden');
-            }
-        }
-
-        function resetStockForm() { editStockId = null; document.getElementById('st-submit-btn').innerText = "Save Drug to Cloud"; document.getElementById('st-cancel-btn').classList.add('hidden'); }
-
-        window.openPrintModal = function(r) {
-            activeModalRecord = r;
-            document.getElementById('rcpt-date-time').innerText = `${r.date} ${r.time}`; document.getElementById('rcpt-token').innerText = r.token;
-            document.getElementById('rcpt-name').innerText = r.name; document.getElementById('rcpt-agegender').innerText = `${r.age}Y / ${r.gender}`;
-            document.getElementById('rcpt-weightcontact').innerText = `${r.weight} / ${r.contact}`; document.getElementById('rcpt-allergies').innerText = r.allergies;
-            document.getElementById('rcpt-history').innerText = r.history; document.getElementById('rcpt-examination').innerText = r.examination;
-            document.getElementById('rcpt-investigations').innerText = r.investigations; document.getElementById('rcpt-dx').innerText = r.diagnosis;
-
-            const meds = document.getElementById('rcpt-meds-body'); meds.innerHTML = r.medications.length === 0 ? '<tr><td colspan="4" class="text-center py-2">No meds.</td></tr>' : '';
-            r.medications.forEach(m => { meds.innerHTML += `<tr><td class="py-1 font-bold">${m.name}</td><td>${m.dose}</td><td>${m.frequency}</td><td class="text-right font-bold">${m.qty}</td></tr>`; });
-
-            document.getElementById('rcpt-doc-fee').innerText = r.billing.docFee.toFixed(2); document.getElementById('rcpt-hosp-fee').innerText = r.billing.hospFee.toFixed(2);
-            document.getElementById('rcpt-drugs-fee').innerText = r.billing.drugsFee.toFixed(2); document.getElementById('rcpt-net-fee').innerText = r.billing.netSubtotal.toFixed(2);
-            document.getElementById('rcpt-final-bill').innerText = r.billing.roundedGrandTotal.toFixed(2);
-            document.getElementById('print-modal-backdrop').classList.remove('hidden');
-        }
-
-        window.triggerSpecificPrint = function(type) {
-            const htmlEl = document.documentElement;
-            if(type === 'summary') htmlEl.className = "print-only-summary";
-            else if(type === 'invoice') htmlEl.className = "print-only-invoice";
-            window.print(); htmlEl.className = "";
-        }
-
-        window.sendPrescriptionViaWhatsApp = function() {
-            if(!activeModalRecord) return; const r = activeModalRecord;
-            let phone = r.contact.replace(/[^0-9]/g, '');
-            if(phone.startsWith('0')) phone = '94' + phone.substring(1);
-            if(!phone || phone.length < 9) { alert("Invalid phone number."); return; }
-
-            let msg = `*🏥 DR. GAYAN'S MEDICARE*\n_Patient Medical Summary_\n\n*Date:* ${r.date}\n*Name:* ${r.name} (${r.age}Y/${r.gender})\n*Diagnosis:* ${r.diagnosis}\n*Allergies:* ${r.allergies}\n\n*💊 Rx (Prescription):*\n`;
-            if(r.medications.length === 0) msg += `No meds.\n`; else r.medications.forEach((m, idx) => { msg += `${idx+1}. ${m.name} - ${m.dose} (${m.frequency}) [Qty: ${m.qty}]\n`; });
-            msg += `\n*Total Bill:* Rs. ${r.billing.roundedGrandTotal.toFixed(2)}\n_Wish you a speedy recovery!_`;
-            window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        window.closePrintModal = function() { document.getElementById('print-modal-backdrop').classList.add('hidden'); activeModalRecord = null; }
-
-        function calculateFinanceMetrics() {
-            const todayStr = new Date().toLocaleDateString('en-US'); 
-            const currentMonthIdx = new Date().getMonth(); 
-            const currentYear = new Date().getFullYear();
-            let todaySum = 0; let monthSum = 0;
-            const tbody = document.getElementById('finance-table-body'); tbody.innerHTML = clinicalArchive.length === 0 ? '<tr><td colspan="6" class="text-center p-4 text-gray-400">No transactions recorded.</td></tr>' : '';
-
-            clinicalArchive.forEach(r => {
-                const total = r.billing.roundedGrandTotal; 
-                if(r.date === todayStr) todaySum += total;
+        Object.keys(tabs).forEach(role => {
+            tabs[role].addEventListener('click', () => {
+                Object.keys(views).forEach(v => views[v].classList.add('hidden'));
+                Object.keys(tabs).forEach(t => tabs[t].className = "px-3 py-1.5 rounded-md font-medium text-indigo-200 hover:text-white");
                 
-                const parts = r.date.split('/'); 
-                if(parts.length === 3) { 
-                    if((parseInt(parts[0]) - 1) === currentMonthIdx && parseInt(parts[2]) === currentYear) monthSum += total; 
-                }
-                tbody.innerHTML += `<tr class="border-b text-xs"><td class="p-3">${r.date} <span class="text-[10px] text-gray-400">${r.time}</span></td><td class="p-3 font-bold">${r.name}</td><td class="p-3 font-mono">Rs. ${r.billing.docFee.toFixed(2)}</td><td class="p-3 font-mono">Rs. ${r.billing.hospFee.toFixed(2)}</td><td class="p-3 font-mono">Rs. ${r.billing.drugsFee.toFixed(2)}</td><td class="p-3 font-mono font-bold text-right text-indigo-950">Rs. ${total.toFixed(2)}</td></tr>`;
+                views[role].classList.remove('hidden');
+                tabs[role].className = "px-3 py-1.5 rounded-md font-medium bg-white text-indigo-600 shadow-sm";
             });
-            document.getElementById('fin-today-total').innerText = todaySum.toFixed(2); document.getElementById('fin-month-total').innerText = monthSum.toFixed(2); document.getElementById('fin-visit-count').innerText = clinicalArchive.length;
+        });
+
+        // 1. Live Sync: Inventory Control
+        onSnapshot(collection(db, "inventory"), (snapshot) => {
+            inventoryData = [];
+            const medSelect = document.getElementById('medSelect');
+            medSelect.innerHTML = '<option value="">Select Drug...</option>';
+            const invTbody = document.getElementById('inventoryTbody');
+            invTbody.innerHTML = '';
+
+            snapshot.forEach(docSnap => {
+                const item = { id: docSnap.id, ...docSnap.data() };
+                inventoryData.push(item);
+
+                // Populate Doctor Selection Dropdown
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = `${item.name} (${item.qty} Left)`;
+                medSelect.appendChild(opt);
+
+                // Populate Inventory Table
+                const tr = document.createElement('tr');
+                tr.className = "text-sm border-b";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-500 font-mono text-xs">#${item.id.substring(0,6)}</td>
+                    <td class="p-3 font-semibold text-gray-800">${item.name}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.qty < 50 ? 'bg-red-100 text-red-800':'bg-emerald-100 text-emerald-800'}">${item.qty} items</span></td>
+                    <td class="p-3 text-right"><button onclick="deleteInventoryItem('${item.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                `;
+                invTbody.appendChild(tr);
+            });
+        });
+
+        // Add Medicine to Inventory Stock
+        document.getElementById('inventoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('invName').value;
+            const qty = parseInt(document.getElementById('invQty').value);
+            
+            const existing = inventoryData.find(i => i.name.toLowerCase() === name.toLowerCase());
+            if(existing) {
+                await updateDoc(doc(db, "inventory", existing.id), { qty: existing.qty + qty });
+            } else {
+                await addDoc(collection(db, "inventory"), { name, qty });
+            }
+            document.getElementById('inventoryForm').reset();
+        });
+
+        window.deleteInventoryItem = async (id) => { if(confirm("Delete drug item completely?")) await deleteDoc(doc(db, "inventory", id)); };
+
+        // 2. Live Sync: Waiting Queue List (Ordered)
+        const qRef = query(collection(db, "queue"), orderBy("timestamp", "asc"));
+        onSnapshot(qRef, (snapshot) => {
+            queueData = [];
+            snapshot.forEach(docSnap => queueData.push({ id: docSnap.id, ...docSnap.data() }));
+            renderReceptionQueue();
+            renderDoctorQueue();
+        });
+
+        // Patient Registration from Reception
+        document.getElementById('patientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = queueData.length > 0 ? Math.max(...queueData.map(p => p.token || 0)) + 1 : 1;
+            await addDoc(collection(db, "queue"), {
+                token,
+                name: document.getElementById('pName').value,
+                age: document.getElementById('pAge').value,
+                gender: document.getElementById('pGender').value,
+                weight: document.getElementById('pWeight').value,
+                bp: document.getElementById('pBp').value,
+                phone: document.getElementById('pPhone').value,
+                timestamp: serverTimestamp()
+            });
+            document.getElementById('patientForm').reset();
+        });
+
+        function renderReceptionQueue() {
+            const tbody = document.getElementById('receptionQueueTbody');
+            tbody.innerHTML = '';
+            queueData.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "text-sm hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-indigo-600">#${p.token}</td>
+                    <td class="p-3"><strong>${p.name}</strong><br><span class="text-xs text-gray-500">${p.age}Y / ${p.gender} / ${p.phone}</span></td>
+                    <td class="p-3 text-xs">WT: ${p.weight}kg | BP: ${p.bp}</td>
+                    <td class="p-3 text-right"><button onclick="removePatientQueue('${p.id}')" class="text-red-500"><i class="fas fa-minus-circle"></i></button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        window.removePatientQueue = async(id) => { if(confirm("Cancel patient?")) await deleteDoc(doc(db, "queue", id)); };
+
+        // 3. Doctor Consultation & Prescription Scripting
+        function renderDoctorQueue() {
+            const div = document.getElementById('doctorQueueDiv');
+            div.innerHTML = '';
+            queueData.forEach(p => {
+                const d = document.createElement('div');
+                d.className = `p-3 border rounded-xl cursor-pointer transition ${selectedDoctorPatient?.id === p.id ? 'bg-indigo-50 border-indigo-400 font-bold': 'bg-white border-gray-100 hover:bg-gray-50'}`;
+                d.innerHTML = `<span>#${p.token} - ${p.name}</span> <i class="fas fa-chevron-right text-xs text-gray-400 float-right mt-1"></i>`;
+                d.addEventListener('click', () => {
+                    selectedDoctorPatient = p;
+                    currentPrescription = [];
+                    document.getElementById('currentPatientName').textContent = p.name;
+                    document.getElementById('currentPatientVitals').textContent = `Age: ${p.age} | Gender: ${p.gender} | Weight: ${p.weight}kg | BP: ${p.bp}`;
+                    document.getElementById('currentPatientToken').textContent = `Token #${p.token}`;
+                    renderDoctorQueue();
+                    renderPrescriptionTable();
+                });
+                div.appendChild(d);
+            });
         }
 
-        function renderAll() {
-            document.getElementById('queue-count-badge').innerText = `${waitingQueue.length} Waiting`;
-            const rq = document.getElementById('reception-queue-body'); rq.innerHTML = waitingQueue.length === 0 ? '<tr><td colspan="5" class="p-4 text-center text-gray-400">Queue empty.</td></tr>' : '';
-            waitingQueue.forEach(p => { rq.innerHTML += `<tr class="border-b"><td class="p-3 font-bold text-indigo-700">#TN-${p.token}</td><td class="p-3 font-semibold">${p.name}</td><td>${p.age}Y / ${p.gender}</td><td class="text-red-600 font-medium">${p.allergies}</td><td class="text-right"><button onclick="removeFromQueue('${p.id}')" class="text-red-500 text-xs border p-1 rounded cursor-pointer">Remove</button></td></tr>`; });
+        document.getElementById('btnAddMed').addEventListener('click', () => {
+            const medId = document.getElementById('medSelect').value;
+            const dosage = document.getElementById('medDosage').value;
+            const days = parseInt(document.getElementById('medDays').value) || 0;
+            const instructions = document.getElementById('medIns').value;
 
-            const dq = document.getElementById('doctor-queue-container'); dq.innerHTML = waitingQueue.length === 0 ? '<p class="text-xs text-gray-400 text-center py-4">No tokens pending.</p>' : '';
-            waitingQueue.forEach(p => { const act = (activePatient && activePatient.id === p.id) ? "border-l-4 border-l-green-500 bg-green-50" : ""; dq.innerHTML += `<div onclick="selectPatientForConsult('${p.id}')" class="p-3 bg-white border rounded cursor-pointer ${act}"><span class="text-xs font-bold font-mono bg-indigo-100 text-indigo-800 px-1 rounded">Token ${p.token}</span><h4 class="font-bold text-sm mt-1">${p.name}</h4></div>`; });
+            if(!medId || days <= 0) { alert("Fill all prescription fields accurately."); return; }
+            const med = inventoryData.find(i => i.id === medId);
+            const factor = dosage.split('+').reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+            const totalQty = Math.ceil(factor * days);
 
-            const ds = document.getElementById('doc-drug-select'); ds.innerHTML = '<option value="">-- Choose Drug --</option>';
-            inventory.forEach(i => { if(i.qty > 0) ds.innerHTML += `<option value="${i.id}">${i.name} (${i.qty} left)</option>`; });
+            if(med.qty < totalQty) { alert(`Insufficient items. Available: ${med.qty}`); return; }
 
-            const sb = document.getElementById('stock-table-body'); sb.innerHTML = ''; const sq = document.getElementById('search-stock').value.toLowerCase();
-            inventory.filter(i => i.name.toLowerCase().includes(sq)).forEach(item => { sb.innerHTML += `<tr class="border-b"><td class="p-3 font-medium">${item.name}</td><td class="font-mono text-xs">${item.batch}</td><td class="font-semibold text-indigo-700">Rs. ${parseFloat(item.unitPrice).toFixed(2)}</td><td class="font-bold">${item.qty}</td><td class="text-xs text-gray-500">${item.expiry}</td><td class="text-right"><button onclick="editStock('${item.id}')" class="text-indigo-600 text-xs">Edit</button></td></tr>`; });
+            currentPrescription.push({ id: medId, name: med.name, dosage, days, qty: totalQty, instructions });
+            renderPrescriptionTable();
+            document.getElementById('medDays').value = '';
+            document.getElementById('medIns').value = '';
+        });
 
-            const arc = document.getElementById('archive-history-container'); arc.innerHTML = ''; const aq = document.getElementById('search-archive').value.toLowerCase();
-            clinicalArchive.filter(p => p.name.toLowerCase().includes(aq) || p.diagnosis.toLowerCase().includes(aq)).forEach(p => { arc.innerHTML += `<div class="bg-gray-50 p-4 rounded border text-xs shadow-xs relative"><button onclick='openPrintModal(${JSON.stringify(p)})' class="absolute top-3 right-3 bg-white border border-gray-300 text-[11px] p-1 rounded cursor-pointer">⚙️ Options</button><div class="border-b pb-1 mb-2"><strong>${p.name}</strong> (${p.age}Y) <span class="block text-[10px] text-gray-400">${p.date}</span></div><div>Dx: ${p.diagnosis}</div><div class="font-bold mt-1">Total: Rs. ${p.billing.roundedGrandTotal.toFixed(2)}</div></div>`; });
-
-            calculateFinanceMetrics();
+        function renderPrescriptionTable() {
+            const tbody = document.getElementById('prescriptionTbody');
+            tbody.innerHTML = '';
+            currentPrescription.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-2 font-medium">${item.name}</td><td class="p-2">${item.dosage}</td><td class="p-2">${item.days} D (${item.qty})</td><td class="p-2">${item.instructions}</td><td class="p-2 text-right"><button class="text-red-500" id="rm-${index}"><i class="fas fa-trash-alt"></i></button></td>`;
+                tbody.appendChild(tr);
+                document.getElementById(`rm-${index}`).addEventListener('click', () => { currentPrescription.splice(index,1); renderPrescriptionTable(); });
+            });
         }
 
-        document.getElementById('search-stock').addEventListener('input', renderAll); document.getElementById('search-archive').addEventListener('input', renderAll);
-        renderAll();
+        // Doctor Saves Prescription -> Pushes directly to Pharmacy Queue & Triggers Silent WhatsApp PDF
+        document.getElementById('btnSavePrescription').addEventListener('click', async () => {
+            if(!selectedDoctorPatient || currentPrescription.length === 0) { alert("Select patient & prescribe medication."); return; }
+
+            // 1. Send data to Pharmacy Queue (instead of immediate deletion/archive)
+            await addDoc(collection(db, "pharmacy"), {
+                patientId: selectedDoctorPatient.id,
+                name: selectedDoctorPatient.name,
+                token: selectedDoctorPatient.token,
+                age: selectedDoctorPatient.age,
+                gender: selectedDoctorPatient.gender,
+                weight: selectedDoctorPatient.weight,
+                bp: selectedDoctorPatient.bp,
+                phone: selectedDoctorPatient.phone,
+                prescription: currentPrescription,
+                timestamp: serverTimestamp()
+            });
+
+            // 2. Generate and Download PDF + Trigger WhatsApp without prices (Doctor Side Action)
+            document.getElementById('pdfName').textContent = selectedDoctorPatient.name;
+            document.getElementById('pdfToken').textContent = selectedDoctorPatient.token;
+            document.getElementById('pdfAgeGen').textContent = `${selectedDoctorPatient.age}Y / ${selectedDoctorPatient.gender}`;
+            document.getElementById('pdfDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('pdfVitals').textContent = `Weight: ${selectedDoctorPatient.weight}kg | BP: ${selectedDoctorPatient.bp}`;
+
+            const pdfTbody = document.getElementById('pdfItemsTbody');
+            pdfTbody.innerHTML = '';
+            currentPrescription.forEach(item => {
+                pdfTbody.innerHTML += `<tr><td style="padding:8px; border-bottom:1px solid #ddd;">${item.name}</td><td style="padding:8px; border-bottom:1px solid #ddd;">${item.dosage}</td><td style="padding:8px; border-bottom:1px solid #ddd;">${item.days} Days</td><td style="padding:8px; border-bottom:1px solid #ddd;">${item.instructions}</td></tr>`;
+            });
+
+            const element = document.getElementById('whatsappPdfTemplate');
+            element.classList.remove('hidden');
+            const pdfOptions = { margin: 10, filename: `Rx_Token_${selectedDoctorPatient.token}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            
+            html2pdf().set(pdfOptions).from(element).save().then(() => {
+                element.classList.add('hidden');
+                // Open WhatsApp Web API
+                if(selectedDoctorPatient.phone) {
+                    const msg = `Hello ${selectedDoctorPatient.name}, your medical visit summary for Token #${selectedDoctorPatient.token} is ready! Please find the downloaded PDF prescription layout.`;
+                    window.open(`https://api.whatsapp.com/send?phone=94${selectedDoctorPatient.phone.substring(1)}&text=${encodeURIComponent(msg)}`, '_blank');
+                }
+            });
+
+            // 3. Remove from active Waiting Doctor List
+            await deleteDoc(doc(db, "queue", selectedDoctorPatient.id));
+            
+            // Clear States
+            selectedDoctorPatient = null;
+            currentPrescription = [];
+            document.getElementById('currentPatientName').textContent = "Select a Patient";
+            renderPrescriptionTable();
+        });
+
+        // 4. Live Sync: Pharmacy Dispensing Center Dashboard (Point 5)
+        const phRef = query(collection(db, "pharmacy"), orderBy("timestamp", "asc"));
+        onSnapshot(phRef, (snapshot) => {
+            pharmacyData = [];
+            const pDiv = document.getElementById('pharmacyQueueDiv');
+            pDiv.innerHTML = '';
+
+            snapshot.forEach(docSnap => {
+                const item = { id: docSnap.id, ...docSnap.data() };
+                pharmacyData.push(item);
+
+                const d = document.createElement('div');
+                d.className = `p-3 border rounded-xl cursor-pointer transition ${selectedPharmacyPatient?.id === item.id ? 'bg-amber-50 border-amber-400 font-bold': 'bg-white border-gray-100 hover:bg-gray-50'}`;
+                d.innerHTML = `<div><p class="text-sm">#${item.token} - <strong>${item.name}</strong></p><p class="text-[11px] text-gray-500">Awaiting Medicine & Bill Print</p></div>`;
+                d.addEventListener('click', () => {
+                    selectedPharmacyPatient = item;
+                    document.getElementById('phPatientName').textContent = `Patient: ${item.name}`;
+                    document.getElementById('phPatientVitals').textContent = `Age: ${item.age}Y | Gender: ${item.gender} | Weight: ${item.weight}kg | BP: ${item.bp}`;
+                    document.getElementById('phPatientToken').textContent = `Token #${item.token}`;
+                    document.getElementById('phInvoiceDate').textContent = new Date().toLocaleString();
+                    
+                    const phTbody = document.getElementById('phInvoiceTbody');
+                    phTbody.innerHTML = '';
+                    item.prescription.forEach(med => {
+                        phTbody.innerHTML += `<tr class="border-b text-xs"><td class="p-2.5 font-medium">${med.name}</td><td class="p-2.5">${med.dosage}</td><td class="p-2.5">${med.days} Days</td><td class="p-2.5 text-right font-bold">${med.qty} tabs</td></tr>`;
+                    });
+                    // Refresh Pharmacy UI highlighted block
+                    onSnapshot(phRef, ()=>{});
+                });
+                pDiv.appendChild(d);
+            });
+        });
+
+        // Print Invoice Action (Handled by Receptionist/Pharmacist)
+        document.getElementById('btnPrintInvoice').addEventListener('click', () => {
+            if(!selectedPharmacyPatient) { alert("Choose active patient list code to process print execution."); return; }
+            window.print();
+        });
+
+        // Complete Dispense -> Deduct inventory stock levels + Archive historical record log
+        document.getElementById('btnCompleteDispense').addEventListener('click', async () => {
+            if(!selectedPharmacyPatient) return;
+
+            if(confirm("Confirm payment, printout verified and discharge patient?")) {
+                // Deduct Inventory Stock Levels now safely
+                for (const item of selectedPharmacyPatient.prescription) {
+                    const invItem = inventoryData.find(i => i.id === item.id);
+                    if(invItem) {
+                        const calculatedQty = invItem.qty - item.qty;
+                        await updateDoc(doc(db, "inventory", item.id), { qty: Math.max(0, calculatedQty) });
+                    }
+                }
+
+                // Add to Final Historical Archives Log Data
+                await addDoc(collection(db, "archive"), {
+                    name: selectedPharmacyPatient.name,
+                    token: selectedPharmacyPatient.token,
+                    phone: selectedPharmacyPatient.phone,
+                    prescription: selectedPharmacyPatient.prescription,
+                    dischargedAt: serverTimestamp()
+                });
+
+                // Clear Pharmacy active queue registry entry point
+                await deleteDoc(doc(db, "pharmacy", selectedPharmacyPatient.id));
+                
+                // Clear UI Console View
+                selectedPharmacyPatient = null;
+                document.getElementById('phPatientName').textContent = "Patient: Select From Left";
+                document.getElementById('phPatientVitals').textContent = "Age: -- | Gender: --";
+                document.getElementById('phPatientToken').textContent = "Token --";
+                document.getElementById('phInvoiceTbody').innerHTML = '';
+            }
+        });
     </script>
 </body>
 </html>
